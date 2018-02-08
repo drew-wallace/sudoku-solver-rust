@@ -1,0 +1,14 @@
+[package]
+name = "sudoku-solver-rust"
+version = "0.1.0"
+authors = ["drew-wallace <the.gold.avengr@gmail.com>"]
+
+[lib]
+name = "sudoku_puzzle"
+path = "src/lib.rs"
+
+[[bin]]
+name = "mybin"
+path = "src/bin.rs"
+
+[dependencies]
