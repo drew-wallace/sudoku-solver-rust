@@ -14,7 +14,8 @@ pub fn main() {
     file.read_to_string(&mut contents)
         .expect("something went wrong reading the file");
 
-    let puzzle = SudokuSolver::new(contents);
+    let mut puzzle = SudokuSolver::new(contents);
 
-    puzzle.output(true);
+    puzzle.solve();
+    puzzle.output(false);
 }

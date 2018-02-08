@@ -52,27 +52,26 @@ impl SudokuSolver {
         }
     }
 
-    pub fn Solve(&mut self) -> u8 {
-        if self.isCorrect() && !self.isSolved() {
-            self.setCellLoop();
+    pub fn solve(&mut self) -> u8 {
+        if self.is_correct() && !self.is_solved() {
+            self.set_cell_loop();
         }
-        if !self.isCorrect() {
+        if !self.is_correct() {
             return 1;
         }
-        if self.isSolved() {
+        if self.is_solved() {
             return 0;
         }
         // x and y are the coord. and n is the number possible
         let mut x: usize = 0;
         let mut y: usize = 0;
         let mut n: u8 = 0;
-        self.findLeastPoss(&mut x, &mut y, &mut n);
+        self.find_least_poss(&mut x, &mut y, &mut n);
 
         for d in 1..10 {
             if self.grid[x][y][d] != 0 {
                 self.grid[x][y][0] = self.grid[x][y][d]; //recursively goes through and checks each possibility. if the puzzle becomes solved it bails out. if not it check the next possibility
-                let rValue = self.Solve();
-                if rValue == 0 {
+                if self.solve() == 0 {
                     return 0;
                 }
             }
@@ -81,60 +80,14 @@ impl SudokuSolver {
         return 1;
     }
 
-    fn zoneCheck(&mut self, v:u8, cr: usize, cc: usize) -> bool { //value, current row, current column
-        //zone row, zone column
+    fn zone_set(&mut self, v: u8, cr: usize, cc: usize) {
         let mut zr = 0;
         let mut zc = 0;
 
         //determines what zone the value "v" is in. zr and zc are the coordinates of the starting element of the zone
-        if cr >= 0 && cr <= 2 {
-            zr = 0; //top row
-            if cc >= 0 && cc <= 2 {
-                zc = 0;
-            } else if cc >= 3 && cc <= 5 {
-                zc = 3;
-            } else if cc >= 6 && cc <= 8 {
-                zc = 6;
-            }
-        } else if cr >= 3 && cr <= 5 {
-            zr = 3; //middle row
-            if cc >= 0 && cc <= 2 {
-                zc = 0;
-            } else if cc >= 3 && cc <= 5 {
-                zc = 3;
-            } else if cc >= 6 && cc <= 8 {
-                zc = 6;
-            }
-        } else if cr >= 6 && cr <= 8 {
-            zr = 6; //bottom row
-            if cc >= 0 && cc <= 2 {
-                zc = 0;
-            } else if cc >= 3 && cc <= 5 {
-                zc = 3;
-            } else if cc >= 6 && cc <= 8 {
-                zc = 6;
-            }
-        }
-
-        //only searches the 3x3 zone. returns false if the zone already contains the value "v"
-        for r in zr..(zr + 3) {
-            for c in zc..(zc + 3) {
-                if self.grid[r][c][0] == v {
-                    return false;
-                }
-            }
-        }
-
-        return true;
-    }
-    fn zoneSet(&mut self, v: u8, cr: usize, cc: usize) {
-        let mut zr = 0;
-        let mut zc = 0;
-
-        //determines what zone the value "v" is in. zr and zc are the coordinates of the starting element of the zone
-        if cr >= 0 && cr <= 2 {
+        if cr <= 2 {
             zr = 0;
-            if cc >= 0 && cc <= 2 {
+            if cc <= 2 {
                 zc = 0;
             } else if cc >= 3 && cc <= 5 {
                 zc = 3;
@@ -143,7 +96,7 @@ impl SudokuSolver {
             }
         } else if cr >= 3 && cr <= 5 {
             zr = 3;
-            if cc >= 0 && cc <= 2 {
+            if cc <= 2 {
                 zc = 0;
             } else if cc >= 3 && cc <= 5 {
                 zc = 3;
@@ -152,7 +105,7 @@ impl SudokuSolver {
             }
         } else if cr >= 6 && cr <= 8 {
             zr = 6;
-            if cc >= 0 && cc <= 2 {
+            if cc <= 2 {
                 zc = 0;
             } else if cc >= 3 && cc <= 5 {
                 zc = 3;
@@ -170,18 +123,7 @@ impl SudokuSolver {
         }
     }
 
-    fn rowCheck(&mut self, v: u8, cr: usize) -> bool {
-        //searches the given row. returns false if the row already contains the value "v"
-        for c in 0..9 {
-            if self.grid[cr][c][0] == v {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    fn rowSet(&mut self, v: u8, cr: usize) {
+    fn row_set(&mut self, v: u8, cr: usize) {
         for c in 0..9 {
             //if the possible value is available then set it to 0
             if self.grid[cr][c][v as usize] == v {
@@ -190,18 +132,7 @@ impl SudokuSolver {
         }
     }
 
-    fn colCheck(&mut self, v: u8, cc: usize) -> bool {
-        //searches the given column. returns false if the column already contains the value "v"
-        for r in 0..9 {
-            if self.grid[r][cc][0] == v {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    fn colSet(&mut self, v: u8, cc: usize) {
+    fn col_set(&mut self, v: u8, cc: usize) {
         for r in 0..9 {
             //if the possible value is available then set it to 0
             if self.grid[r][cc][v as usize] == v {
@@ -210,12 +141,7 @@ impl SudokuSolver {
         }
     }
 
-    //checks a single cell for the 3 cases: row, column, and zone
-    fn cellCheck(&mut self, v: u8, r: usize, c: usize) -> bool {
-        self.zoneCheck(v, r, c) && self.rowCheck(v, r) && self.colCheck(v, c)
-    }
-
-    fn setPossible(&mut self) {
+    fn set_possible(&mut self) {
         let mut v: u8;
 
         for r in 0..9 {
@@ -223,15 +149,15 @@ impl SudokuSolver {
                 //runs through the whole grid and sets the possible values for each cell
                 if self.grid[r][c][0] != 0 {
                     v = self.grid[r][c][0];
-                    self.colSet(v, c);
-                    self.rowSet(v, r);
-                    self.zoneSet(v, r, c);
+                    self.col_set(v, c);
+                    self.row_set(v, r);
+                    self.zone_set(v, r, c);
                 }
             }
         }
     }
 
-    fn setCellLoop(&mut self) {
+    fn set_cell_loop(&mut self) {
         let mut count = 0; //counts possible
         let mut sd: u8 = 0; //singles possibility var.
         let mut changed = true;
@@ -242,7 +168,7 @@ impl SudokuSolver {
             changed = false;
             for r in 0..9 {
                 'c: for c in 0..9 {
-                    self.setPossible();
+                    self.set_possible();
                     if self.grid[r][c][0] == 0 {
                         //set singles
                         for d in 1..10 {
@@ -268,9 +194,9 @@ impl SudokuSolver {
 
                         //for zone
                         //determines what zone the cell is in. zr and zc are the coordinates of the starting element of the zone
-                        if r >= 0 && r <= 2 {
+                        if r <= 2 {
                             zr = 0; //top row
-                            if c >= 0 && c <= 2 {
+                            if c <= 2 {
                                 zc = 0;
                             } else if c >= 3 && c <= 5 {
                                 zc = 3;
@@ -279,7 +205,7 @@ impl SudokuSolver {
                             }
                         } else if r >= 3 && r <= 5 {
                             zr = 3; //middle row
-                            if c >= 0 && c <= 2 {
+                            if c <= 2 {
                                 zc = 0;
                             } else if c >= 3 && c <= 5 {
                                 zc = 3;
@@ -288,7 +214,7 @@ impl SudokuSolver {
                             }
                         } else if r >= 6 && r <= 8 {
                             zr = 6; //bottom row
-                            if c >= 0 && c <= 2 {
+                            if c <= 2 {
                                 zc = 0;
                             } else if c >= 3 && c <= 5 {
                                 zc = 3;
@@ -373,7 +299,7 @@ impl SudokuSolver {
 
     }
 
-    fn isSolved(&mut self) -> bool {
+    fn is_solved(&mut self) -> bool {
         for r in 0..9 {
             for c in 0..9 {
                 if self.grid[r][c][0] == 0 {
@@ -385,7 +311,7 @@ impl SudokuSolver {
         return true;
     }
 
-    fn isCorrect(&mut self) -> bool {
+    fn is_correct(&mut self) -> bool {
         let mut count = 0;
 
         for r in 0..9 {
@@ -409,7 +335,7 @@ impl SudokuSolver {
         return true;
     }
 
-    fn findLeastPoss(&mut self, x: &mut usize, y: &mut usize, n: &mut u8) {
+    fn find_least_poss(&mut self, x: &mut usize, y: &mut usize, n: &mut u8) {
         let mut count = 0;
         *n = 9;
         for r in 0..9 {
