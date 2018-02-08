@@ -8,7 +8,8 @@ name = "sudoku_puzzle"
 path = "src/lib.rs"
 
 [[bin]]
-name = "mybin"
+name = "sudoku_puzzle"
 path = "src/bin.rs"
 
 [dependencies]
+time = "0.1.39"

@@ -36,7 +36,7 @@ impl SudokuSolver {
     }
 
     pub fn output(&mut self, pretty: bool) {
-        let mut file = File::create("output.txt").expect("Couldn't create/open file");
+        let mut file = File::create("solved.txt").expect("Couldn't create/open file");
 
         for r in 0..9 {
             for c in 0..9 {
